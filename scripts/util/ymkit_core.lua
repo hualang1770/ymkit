@@ -1,7 +1,7 @@
 -- ============================================================================
 --  青年的工具 · 公共工具库
 --  ---------------------------------------------------------------------------
---  所有工具共享的辅助逻辑都集中在这里：装备判断、热重载幂等注册、
+--  所有工具共享的辅助逻辑都集中在这里：装备判断、注册辅助、
 --  快速动作状态、隔空工具工厂。动作注册文件只负责“描述”，不重复实现。
 -- ============================================================================
 
@@ -31,67 +31,23 @@ function core.is_equipped_by(weapon, doer, prefab_id)
 end
 
 ----------------------------------------------------------------------------
--- 热重载幂等注册：全局状态机/后置钩子重复注册会导致动作错乱或功能失效
+-- 动作状态与组件后置注册
 ----------------------------------------------------------------------------
 
-local reg = TUNING.YMKIT_REG
-reg.state_defs = reg.state_defs or {}
-reg.handler_defs = reg.handler_defs or {}
-reg.postinit_fns = reg.postinit_fns or {}
-
-local function refresh_definition(existing, current)
-    for k in pairs(existing) do
-        existing[k] = nil
-    end
-    for k, v in pairs(current) do
-        existing[k] = v
-    end
-    return existing
-end
-
 function core.add_state(stategraph, state)
-    local key = stategraph .. '/' .. state.name
-    if reg.states[key] then
-        local existing = reg.state_defs[key]
-        return existing ~= nil and refresh_definition(existing, state) or nil
-    end
     AddStategraphState(stategraph, state)
-    reg.state_defs[key] = state
-    reg.states[key] = true
-    return state
 end
 
 function core.add_handler(stategraph, handler)
-    local action = handler ~= nil and handler.action or nil
-    local id = action ~= nil and (action.id or tostring(action)) or '?'
-    local key = stategraph .. '/' .. tostring(id)
-    if reg.handlers[key] then
-        local existing = reg.handler_defs[key]
-        return existing ~= nil and refresh_definition(existing, handler) or nil
-    end
     AddStategraphActionHandler(stategraph, handler)
-    reg.handler_defs[key] = handler
-    reg.handlers[key] = true
-    return handler
 end
 
-function core.add_postinit(component, key, fn)
-    local k = component .. '/' .. key
-    reg.postinit_fns[k] = fn
-    if reg.postinits[k] then
-        return
-    end
-    AddComponentPostInit(component, function(...)
-        local current = reg.postinit_fns[k]
-        if current ~= nil then
-            return current(...)
-        end
-    end)
-    reg.postinits[k] = true
+function core.add_postinit(component, fn)
+    AddComponentPostInit(component, fn)
 end
 
--- RB3 会在自身重载时重建 allowed_actions，不能用跨加载标记跳过注册。
--- AddActionQueuerAction 与 actionqueuer:AddAction 都按动作对象覆盖，重复调用安全。
+-- 同时覆盖两种正常启动顺序：RB3 已加载时写入全局白名单，RB3 稍后创建
+-- actionqueuer 组件时再写入实例。AddAction 按动作对象覆盖，重复写入安全。
 function core.add_queuer_postinit(fn)
     AddComponentPostInit('actionqueuer', fn)
 end

@@ -6,10 +6,6 @@ local stats = require 'util/ymkit_item_stats'
 local config = TUNING.YMKIT_CONFIG
 
 local function add_recipe(tool)
-    if TUNING.YMKIT_REG.recipes[tool.prefab_id] then
-        return
-    end
-
     local ingredients = {}
     for _, material in ipairs(tool.recipes) do
         table.insert(ingredients, Ingredient(material[1], material[2]))
@@ -20,9 +16,8 @@ local function add_recipe(tool)
         image = tool.recipe_image,
         force_hint = true, -- 未解锁时也在制造栏可见（锁定态），靠近科技建筑造过后永久解锁
     }, {'YMKIT_TOOLS'})
-    TUNING.YMKIT_REG.recipes[tool.prefab_id] = true
 
-    -- 只保留在“青年的工具”栏，从其他栏移除（幂等，可重复调用）
+    -- 只保留在“青年的工具”栏，从其他栏移除
     RemoveRecipeFromFilter(tool.prefab_id, 'MODS')
     RemoveRecipeFromFilter(tool.prefab_id, CRAFTING_FILTERS.CRAFTING_STATION.name)
 end

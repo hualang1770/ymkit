@@ -1,49 +1,6 @@
 
 GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end})
 
--- 热重载幂等保护：模组配置"应用"会重新执行 modmain，
--- DST 的动作/组件钩子注册表不会重置，重复注册会导致编码错位、动作失效。
-TUNING.YMKIT_REG = TUNING.YMKIT_REG or {}
-TUNING.YMKIT_REG.actions = TUNING.YMKIT_REG.actions or {}
-TUNING.YMKIT_REG.components = TUNING.YMKIT_REG.components or {}
-TUNING.YMKIT_REG.component_fns = TUNING.YMKIT_REG.component_fns or {}
-TUNING.YMKIT_REG.recipes = TUNING.YMKIT_REG.recipes or {}
-TUNING.YMKIT_REG.states = TUNING.YMKIT_REG.states or {}
-TUNING.YMKIT_REG.handlers = TUNING.YMKIT_REG.handlers or {}
-TUNING.YMKIT_REG.postinits = TUNING.YMKIT_REG.postinits or {}
-
-local _AddAction = AddAction
-local _AddComponentAction = AddComponentAction
-
-env.AddAction = function(id, str, fn)
-    local existing = ACTIONS[id]
-    if existing ~= nil and TUNING.YMKIT_REG.actions[id] then
-        -- “应用”配置时沿用已分配的动作编码，但刷新实现与显示文本。
-        existing.str = str
-        existing.fn = fn
-        STRINGS.ACTIONS[id] = str
-        return existing
-    end
-    local action = _AddAction(id, str, fn)
-    TUNING.YMKIT_REG.actions[id] = true
-    return action
-end
-
-env.AddComponentAction = function(actiontype, component, fn)
-    local key = actiontype .. '/' .. component
-    TUNING.YMKIT_REG.component_fns[key] = fn
-    if TUNING.YMKIT_REG.components[key] then
-        return
-    end
-    _AddComponentAction(actiontype, component, function(...)
-        local current = TUNING.YMKIT_REG.component_fns[key]
-        if current ~= nil then
-            return current(...)
-        end
-    end)
-    TUNING.YMKIT_REG.components[key] = true
-end
-
 PrefabFiles = {
     'prefab_ymkit_battleaxe',
     'prefab_ymkit_jiandao',
@@ -96,15 +53,12 @@ Assets = {
     Asset('ATLAS', 'images/inventoryimages/inventoryimages2.xml'),
     Asset('IMAGE', 'images/inventoryimages/inventoryimages2.tex'),
 }
-if not TUNING.YMKIT_REG.filter_tools then
-    AddRecipeFilter({
-        name = 'YMKIT_TOOLS',
-        atlas = 'images/inventoryimages/inventoryimages2.xml',
-        image = 'healingstaff.tex',
-    })
-    STRINGS.UI.CRAFTING_FILTERS.YMKIT_TOOLS = '青年的工具'
-    TUNING.YMKIT_REG.filter_tools = true
-end
+AddRecipeFilter({
+    name = 'YMKIT_TOOLS',
+    atlas = 'images/inventoryimages/inventoryimages2.xml',
+    image = 'healingstaff.tex',
+})
+STRINGS.UI.CRAFTING_FILTERS.YMKIT_TOOLS = '青年的工具'
 
 -- 核心模块加载失败时保留完整堆栈并中止初始化，避免模组半注册后继续运行。
 modimport('scripts/util/'..mod_name..'_strings.lua')

@@ -168,7 +168,7 @@ do
     core.add_queuer_action('autocollect', fast_pick, can_queue_fast_pick)
 
     -- 空格键（动作键）映射：采集/捕虫改为快速动作，隔空工具不占用空格
-    core.add_postinit('playercontroller', 'get_action_button_action', function(self)
+    core.add_postinit('playercontroller', function(self)
         local get_action_button_action = self.GetActionButtonAction
         self.GetActionButtonAction = function(controller, ...)
             local action = get_action_button_action(controller, ...)
@@ -405,7 +405,7 @@ do
             )
         end
 
-        core.add_postinit('playercontroller', 'do_action_auto_equip', function(self)
+        core.add_postinit('playercontroller', function(self)
             local DoActionAutoEquip = self.DoActionAutoEquip
             function self:DoActionAutoEquip(buffaction)
                 if buffaction ~= nil and no_autoequip_actions[buffaction.action] then
@@ -470,7 +470,7 @@ do
     end)
 
     -- 动作键映射：收获/拿取 → 快速动作（采集已在战斧段统一映射）
-    core.add_postinit('playercontroller', 'get_action_button_action_staff', function(self)
+    core.add_postinit('playercontroller', function(self)
         local get_action_button_action = self.GetActionButtonAction
         self.GetActionButtonAction = function(controller, ...)
             local action = get_action_button_action(controller, ...)
