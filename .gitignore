@@ -1,0 +1,25 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Lua tooling
+.luacheckcache
+lua-language-server/
+
+# Runtime logs and temporary files
+*.log
+*.tmp
+*.bak
+*.orig
+
+# Local backups
+*_backup_*/
+*_backup_*.zip
