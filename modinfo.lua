@@ -1,8 +1,8 @@
 
 name = '青年的工具'
-version = '2.4.27'
+version = '2.4.29'
 
-description = version .. '\n青年制作的合集工具：黑曜石战斧（范围收割/隔空工具）、魔法剪刀（真实伤害/拆解/锤子形态）与力量魔杖（传送/沃尔夫冈肌肉保留），持续扩展中'
+description = version .. '\n青年制作的合集工具：黑曜石战斧（范围收割/隔空工具）、魔法剪刀（真实伤害/拆解/锤子形态）、力量魔杖（传送/沃尔夫冈肌肉保留）、高效肥料与万物生长，持续扩展中'
 
 author = '青年'
 
@@ -51,6 +51,7 @@ configuration_options = {
     toggle('enable_mine', '采矿', '开启采矿能力，效率为普通鹤嘴锄的3倍'),
     toggle('enable_chop', '砍树', '开启砍树能力，效率为普通斧头的3倍'),
     toggle('enable_net', '捕虫', '开启官方捕虫网动作'),
+    toggle('enable_row', '划船', '开启黑曜石战斧的划船功能，划船效率为100%'),
     section('ymkit_section_jiandao', '剪刀功能'),
     toggle('enable_jiandao', '剪刀拆解', '开启第二把工具魔法剪刀的拆解返还材料功能'),
     toggle('enable_jiandao_remote', '剪刀隔空操作', '开启拆解与锤子的隔空执行，无需走近目标'),
@@ -87,5 +88,47 @@ configuration_options = {
         },
         default = 'slow',
     },
+    section('ymkit_section_rich_fertilizer', '高效肥料'),
+    toggle('enable_rich_fertilizer', '高效肥料', '开启高效肥料的制作配方'),
+    {
+        name = 'rich_fertilizer_nutrients',
+        label = '每种营养含量',
+        hover = '每次施肥为耕地补充的每种营养数值',
+        options = {
+            {description = '25', data = 25},
+            {description = '50', data = 50},
+            {description = '75', data = 75},
+            {description = '100', data = 100},
+        },
+        default = 25,
+    },
+    {
+        name = 'rich_fertilizer_uses',
+        label = '使用次数',
+        hover = '每份高效肥料可使用的次数；无限时不会消耗',
+        options = {
+            {description = '10次', data = 10},
+            {description = '20次', data = 20},
+            {description = '50次', data = 50},
+            {description = '100次', data = 100},
+            {description = '无限', data = false},
+        },
+        default = 10,
+    },
+    {
+        name = 'rich_fertilizer_recipe_amount',
+        label = '每种配方材料数量',
+        hover = '制作高效肥料时每种基础肥料所需的数量',
+        options = {
+            {description = '1', data = 1},
+            {description = '2', data = 2},
+            {description = '3', data = 3},
+            {description = '4', data = 4},
+            {description = '5', data = 5},
+        },
+        default = 3,
+    },
+    section('ymkit_section_growth_fallacy', '万物生长'),
+    toggle('enable_growth_fallacy', '万物生长', '开启万物生长的制作配方；已有物品不受此开关影响'),
 }
 

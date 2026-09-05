@@ -15,8 +15,8 @@
 -- ============================================================================
 
 local stats = {
-    -- 工具登记顺序：字符串/配方注册按此遍历；新增工具时把键名加进来即可
-    list = {'battleaxe', 'jiandao', 'powerstaff'},
+    -- 物品登记顺序：字符串/配方注册按此遍历；新增物品时把键名加进来即可
+    list = {'battleaxe', 'jiandao', 'powerstaff', 'rich_fertilizer', 'growth_fallacy'},
 
     --------------------------------------------------------------------------
     -- 一、黑曜石战斧（ymkit_battleaxe）
@@ -33,10 +33,12 @@ local stats = {
         recipe_atlas = 'images/inventoryimages/obsidian_battleaxe.xml',
         recipe_image = 'obsidian_battleaxe.tex',
 
-        damage = 54,                        -- 攻击力
-        range = 1,                          -- 攻击距离
+        damage = 74,                        -- 攻击力
+        range = 1.5,                          -- 攻击距离
         walkspeedmult = 1.25,               -- 手持移速倍率
         planardmg = 5,                      -- 位面伤害
+        row_force = 1.0,                    -- 划船力度（邪天翁喙 0.8 的 125%）
+        row_max_velocity = 6.25,            -- 划船最高速度（邪天翁喙 5 的 125%）
 
         -- 工具能力：effectiveness 为效率，数值越大单次作业量越高
         tools = {
@@ -48,7 +50,7 @@ local stats = {
                 action = 'DIG',
                 config = 'dig',
                 mode = 'dig',
-                effectiveness = 1,
+                effectiveness = 10,
                 remote = true,
                 queue = {'rightclick', 'noworkdelay', 'tools', 'autocollect'},
                 state = {'predig', 'digging', 'dig_start', 'dig'},
@@ -132,7 +134,7 @@ local stats = {
         -- 真实伤害参考值；实际生效数值由模组配置项 jiandao_damage 控制
         -- （游戏内模组设置可选 54~9999；想改默认值请改 modinfo.lua 的 default）
         damage = 100,
-        range = 1,                          -- 攻击距离
+        range = 1.5,                          -- 攻击距离
         walkspeedmult = 1,                  -- 手持移速倍率
         planardmg = 0,                      -- 位面伤害
 
@@ -188,13 +190,56 @@ local stats = {
         -- 制作配方
         recipes = {
             {'orangestaff', 1},
-            {'dumbbell_gem', 1},
+            {'goldnugget', 10},
             {'greengem', 1},
         },
     },
 
     --------------------------------------------------------------------------
-    -- 四、以后新增的工具
+    -- 四、高效肥料（ymkit_rich_fertilizer）
+    --------------------------------------------------------------------------
+    rich_fertilizer = {
+        prefab_id = 'ymkit_rich_fertilizer',
+        config_key = 'rich_fertilizer',
+        name = '高效肥料',
+        describe = '闻起来像科学和肥料的混合物。',
+        recipe_desc = '富含全部营养类型的高效肥料。',
+        tech = TECH.SCIENCE_TWO,
+        recipe_atlas = 'images/inventoryimages/ymkit_rich_fertilizer.xml',
+        recipe_image = 'ymkit_rich_fertilizer.tex',
+        recipe_amount_config = 'rich_fertilizer_recipe_amount',
+        recipes = {
+            {'fertilizer', 1},
+            {'soil_amender', 1},
+            {'compost', 1},
+        },
+    },
+
+    --------------------------------------------------------------------------
+    -- 五、万物生长（ymkit_growth_fallacy）
+    --------------------------------------------------------------------------
+    growth_fallacy = {
+        prefab_id = 'ymkit_growth_fallacy',
+        config_key = 'growth_fallacy',
+        name = '万物生长',
+        describe = '草木丛生',
+        recipe_desc = '强而有力',
+        bank = 'ymkit_growth_fallacy',
+        image = 'ymkit_growth_fallacy',
+        tech = TECH.NONE,
+        recipe_atlas = 'images/inventoryimages/ymkit_growth_fallacy.xml',
+        recipe_image = 'ymkit_growth_fallacy.tex',
+        range = 30,
+        uses = 5,
+        recipes = {
+            {'papyrus', 1},
+            {'poop', 5},
+            {'seeds', 1},
+        },
+    },
+
+    --------------------------------------------------------------------------
+    -- 六、以后新增的工具
     -- 复制下面的模板，改 prefab_id 和数值即可。同时：
     --   1. 把键名加进上面的 list（字符串/配方会自动注册）
     --   2. 在 scripts/prefabs/ 新建对应 prefab 文件，并在 modmain.lua 的

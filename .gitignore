@@ -23,3 +23,6 @@ lua-language-server/
 # Local backups
 *_backup_*/
 *_backup_*.zip
+
+# Local animation extraction scratch files
+$tmp/

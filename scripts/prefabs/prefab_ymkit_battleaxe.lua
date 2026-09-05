@@ -236,6 +236,10 @@ local function fn()
     inst.Light:Enable(false)
 
     inst:AddTag('nosteal')
+    if config.row then
+        -- 允许在船外水面点击，复用原版 oar 的 ROW 动作检测。
+        inst:AddTag('allow_action_on_impassable')
+    end
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
@@ -255,6 +259,13 @@ local function fn()
     inst:AddComponent('weapon')
     inst.components.weapon:SetDamage(data.damage)
     inst.components.weapon:SetRange(data.range, data.range)
+
+    if config.row then
+        -- 复用原版划船组件；不添加 finiteuses，因此划船不会消耗战斧耐久。
+        local oar = inst:AddComponent('oar')
+        oar.force = data.row_force
+        oar.max_velocity = data.row_max_velocity
+    end
 
     inst:AddComponent('tool')
     inst.components.tool:EnableToughWork(true)

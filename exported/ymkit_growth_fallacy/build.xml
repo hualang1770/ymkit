@@ -1,0 +1,5 @@
+<Build name="ymkit_growth_fallacy.scml">
+ <Symbol name="item">
+  <Frame framenum="0" duration="1" image="ymkit_growth_fallacy" w="256" h="256" x="0.000000" y="0.000000"/>
+ </Symbol>
+</Build>

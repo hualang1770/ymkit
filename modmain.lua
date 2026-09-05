@@ -5,6 +5,8 @@ PrefabFiles = {
     'prefab_ymkit_battleaxe',
     'prefab_ymkit_jiandao',
     'prefab_ymkit_powerstaff',
+    'prefab_ymkit_rich_fertilizer',
+    'prefab_ymkit_growth_fallacy',
 }
 
 local mod_name = 'ymkit'
@@ -20,6 +22,7 @@ end
 
 local config = {
     remote = GetModConfigData('enable_remote') ~= false,
+    row = GetModConfigData('enable_row') ~= false,
 }
 
 for _, tool in ipairs(stats.battleaxe.tools) do
@@ -31,11 +34,26 @@ config.jiandao_remote = modconfig('enable_jiandao_remote', true)
 config.jiandao_damage = modconfig('jiandao_damage', 100)
 config.powerstaff = modconfig('enable_powerstaff', true)
 config.wolfgang_muscle = modconfig('wolfgang_muscle', 'slow')
+config.rich_fertilizer = modconfig('enable_rich_fertilizer', true)
+config.rich_fertilizer_nutrients = modconfig('rich_fertilizer_nutrients', 25)
+config.rich_fertilizer_uses = modconfig('rich_fertilizer_uses', 10)
+config.rich_fertilizer_recipe_amount = modconfig('rich_fertilizer_recipe_amount', 3)
+config.growth_fallacy = modconfig('enable_growth_fallacy', true)
 for _, tool in ipairs(stats.jiandao.tools) do
     config[tool.config] = modconfig('enable_' .. tool.config, true)
 end
 
 TUNING.YMKIT_CONFIG = config
+
+-- Insight 等模组通过该表读取肥料的三种营养数值。
+local fertilizer_defs = require('prefabs/fertilizer_nutrient_defs').FERTILIZER_DEFS
+fertilizer_defs.ymkit_rich_fertilizer = {
+    nutrients = {
+        config.rich_fertilizer_nutrients,
+        config.rich_fertilizer_nutrients,
+        config.rich_fertilizer_nutrients,
+    },
+}
 
 -- 力量魔杖使用懒人魔杖(orangestaff)的动画，注册同一组皮肤：
 -- 让制作栏皮肤选择器、装扮工具(reskin_tool)都能对力量魔杖使用懒人魔杖皮肤。
