@@ -5,7 +5,7 @@ local data = require('util/ymkit_item_stats').rich_fertilizer
 local config = TUNING.YMKIT_CONFIG
 
 local assets = {
-    Asset('ANIM', 'anim/fertilizer.zip'),
+    Asset('ANIM', 'anim/rich_fertilizer.zip'),
     Asset('ATLAS', data.recipe_atlas),
     Asset('IMAGE', 'images/inventoryimages/' .. data.recipe_image),
 }
@@ -30,8 +30,8 @@ local function fn()
     MakeInventoryFloatable(inst, 'small', 0.2, 0.95)
     MakeDeployableFertilizerPristine(inst)
 
-    inst.AnimState:SetBank('fertilizer')
-    inst.AnimState:SetBuild('fertilizer')
+    inst.AnimState:SetBank('rich_fertilizer')
+    inst.AnimState:SetBuild('rich_fertilizer')
     inst.AnimState:PlayAnimation('idle')
 
     inst:AddTag('fertilizerresearchable')
