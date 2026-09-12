@@ -16,7 +16,7 @@
 
 local stats = {
     -- 物品登记顺序：字符串/配方注册按此遍历；新增物品时把键名加进来即可
-    list = {'battleaxe', 'scissors', 'powerstaff', 'rich_fertilizer', 'growth_fallacy'},
+    list = {'battleaxe', 'scissors', 'powerstaff', 'rich_fertilizer', 'growth_fallacy', 'horseshoe', 'lucky_horseshoe', 'unlucky_horseshoe', 'bernie_chest'},
 
     --------------------------------------------------------------------------
     -- 一、黑曜石战斧（ymkit_battleaxe）
@@ -239,7 +239,117 @@ local stats = {
     },
 
     --------------------------------------------------------------------------
-    -- 六、以后新增的工具
+    -- 六、原版幸运马蹄铁的额外合成途径（ymkit_horseshoe）
+    --------------------------------------------------------------------------
+    horseshoe = {
+        prefab_id = 'horseshoe',
+        keep_vanilla_name = true, -- 不覆盖原版名称/描述，只新增合成配方
+        name = '幸运马蹄铁',
+        describe = '据说能带来好运的马蹄铁。',
+        recipe_desc = '幸运金块合成幸运马蹄铁，很合理吧',
+        tech = TECH.NONE,
+        recipe_atlas = 'images/inventoryimages2.xml',
+        recipe_image = 'horseshoe.tex',
+        recipes = {
+            {'lucky_goldnugget', 4},
+        },
+    },
+
+    --------------------------------------------------------------------------
+    -- 七、超幸运马蹄铁（ymkit_lucky_horseshoe）
+    --------------------------------------------------------------------------
+    lucky_horseshoe = {
+        prefab_id = 'ymkit_lucky_horseshoe',
+        name = '超幸运马蹄铁',
+        describe = '10倍的幸运',
+        recipe_desc = '带上它，你会幸运的',
+        bank = 'lucky_horseshoe',
+        image = 'ymkit_lucky_horseshoe',
+        tech = TECH.NONE,
+        recipe_atlas = 'images/inventoryimages/ymkit_lucky_horseshoe.xml',
+        recipe_image = 'ymkit_lucky_horseshoe.tex',
+        recipes = {
+            {'horseshoe', 10},
+        },
+    },
+
+    --------------------------------------------------------------------------
+    -- 八、不幸马蹄铁（ymkit_unlucky_horseshoe）
+    --------------------------------------------------------------------------
+    unlucky_horseshoe = {
+        prefab_id = 'ymkit_unlucky_horseshoe',
+        name = '不幸马蹄铁',
+        describe = '4倍的黑鲶鱼',
+        recipe_desc = '带上它，也许你会幸运的',
+        bank = 'unlucky_horseshoe',
+        image = 'ymkit_unlucky_horseshoe',
+        tech = TECH.NONE,
+        recipe_atlas = 'images/inventoryimages/ymkit_unlucky_horseshoe.xml',
+        recipe_image = 'ymkit_unlucky_horseshoe.tex',
+        recipes = {
+            {'oceanfish_medium_4_inv', 4},
+        },
+    },
+
+    --------------------------------------------------------------------------
+    -- 九、小熊箱（ymkit_bernie_chest）
+    --------------------------------------------------------------------------
+    bernie_chest = {
+        prefab_id = 'ymkit_bernie_chest',
+        name = '小熊箱',
+        describe = '小熊的肚子里能装下不少东西。',
+        recipe_desc = '三块木板钉一只小熊',
+        bank = 'bernie_chest',              -- 动画 bank 与 build 同名
+        placer_id = 'ymkit_bernie_chest_placer',
+        -- 容器：6x6 共 36 格。槽位和底板都用官方 UI 资源，底板取官方箱子 ui_chest_3x3 放大到能盖住 6x6。
+        container_cols = 6,
+        container_rows = 6,
+        container_spacing = 80,             -- 与原版箱子一致的槽位间距
+        -- 自画的 6x6 底板（700x700，源图 images/ymkit_bernie_chest_panel.png）。
+        -- 走 ContainerWidget 的 bgatlas/bgimage 分支：按 1 像素 = 1 界面单位直接画贴图，不放大，最清晰。
+        -- 贴图文件不存在时会自动退回下面那套官方动画底板。
+        container_bg_atlas = 'images/ymkit_bernie_chest_panel.xml',
+        container_bg_image = 'ymkit_bernie_chest_panel.tex',
+        -- 备用底板：官方箱子 ui_chest_3x3 本身只有 3x3 大，靠放大 2 倍罩住 6x6 的格子
+        container_bg_scale = 2,
+        container_bg_zip = 'ui_chest_3x3.zip',
+        container_bg_bank = 'ui_chest_3x3',
+        container_bg_build = 'ui_chest_3x3',
+        -- 面板位置：ContainerWidget 的根节点自带 0.6 缩放（见原版 widgets/containerwidget.lua），
+        -- 所以 700 高的底板其实只占 700 * 0.6 = 420 个单位。下面给的是“理想位置”：
+        -- 屏幕够高时底板上沿会停在中线上方，不挡箱子本体；屏幕不够高就自动往下让，
+        -- 保证面板不顶出屏幕上沿（算法见 prefab 里的 container_widget_posfn）。
+        -- 另外这块面板挂在原版 controls.containerroot 底下，那个节点会按分辨率等比放大
+        -- （最多 MAX_HUD_SCALE = 1.25 倍），所以面板在屏幕上的实际大小和位置随分辨率变化，
+        -- posfn 会把放大倍数算进去：1080p 放不下理想位置就自动下移，2K 及以上保持不动。
+        container_widget_y = 290,           -- 面板中心的理想高度（原版箱子是 200）
+        container_bg_pixels = 700,          -- 自画底板的边长（像素），用来换算面板实际占多高
+        container_widget_scale = 0.6,       -- 原版 ContainerWidget 根节点的缩放，一般不用改
+        container_widget_margin = 8,        -- 面板上沿与屏幕上沿至少留出的距离（屏幕像素）
+        anim_idle = 'chest',                -- 待机动画（循环播放）
+        anim_hit = 'hit',                   -- 被锤击时播放的动画
+        -- 保鲜/返鲜：键名与 modinfo 的 bernie_chest_preserve 选项一一对应。
+        -- 表里是“腐败速度倍率”，越小越不容易坏：0.5 = 原版冰箱（腐烂速度减半），0 = 完全不腐烂。
+        -- 返鲜除了不腐烂，还会每 restore_period 秒给箱内物品补 restore_percent 的新鲜度。
+        preserve_modes = {
+            fridge50 = 0.5,                 -- 原版冰箱数值
+            fridge75 = 0.25,
+            fridge100 = 0,
+            restore = 0,
+        },
+        restore_period = 30,                -- 返鲜间隔（秒）
+        restore_percent = 0.05,             -- 每次恢复的新鲜度比例（5%）
+        tech = TECH.SCIENCE_ONE,            -- 与原版箱子相同：科学一本
+        recipe_atlas = 'images/inventoryimages/ymkit_bernie_chest.xml',
+        recipe_image = 'ymkit_bernie_chest.tex',
+        min_spacing = 1,                    -- 与原版箱子一致的放置间距
+        recipes = {
+            {'boards', 3},
+        },
+    },
+
+    --------------------------------------------------------------------------
+    -- 十、以后新增的工具
     -- 复制下面的模板，改 prefab_id 和数值即可。同时：
     --   1. 把键名加进上面的 list（字符串/配方会自动注册）
     --   2. 在 scripts/prefabs/ 新建对应 prefab 文件，并在 modmain.lua 的

@@ -655,3 +655,36 @@ do
         end
     end)
 end
+
+----------------------------------------------------------------------------
+-- 五、马蹄铁：超幸运/不幸互相转换
+----------------------------------------------------------------------------
+do
+    local lucky = stats.lucky_horseshoe
+    local unlucky = stats.unlucky_horseshoe
+    local transform_action = AddAction(
+        'YMKIT_HORSESHOE_TRANSFORM',
+        '转换',
+        function(act)
+            local inst = act.invobject
+            if inst ~= nil
+                and inst:IsValid()
+                and inst.components.ymkit_horseshoe_transform ~= nil then
+                return inst.components.ymkit_horseshoe_transform:Do()
+            end
+            return false
+        end
+    )
+    transform_action.priority = 99
+    transform_action.mount_valid = true
+
+    core.add_handler('wilson', ActionHandler(transform_action, 'dolongaction'))
+    core.add_handler('wilson_client', ActionHandler(transform_action, 'dolongaction'))
+
+    AddComponentAction('INVENTORY', 'ymkit_horseshoe_transform', function(inst, doer, actions)
+        if inst.components.ymkit_horseshoe_transform ~= nil
+            and (inst.prefab == lucky.prefab_id or inst.prefab == unlucky.prefab_id) then
+            table.insert(actions, transform_action)
+        end
+    end)
+end

@@ -18,6 +18,9 @@ local function add_recipe(item)
         atlas = item.recipe_atlas,
         image = item.recipe_image,
         force_hint = true, -- 未解锁时也在制造栏可见（锁定态），靠近科技建筑造过后永久解锁
+        -- 可放置的建筑：制作后进入放置模式，放下才生成建筑本体
+        placer = item.placer_id,
+        min_spacing = item.min_spacing,
     }, {'YMKIT_TOOLS'})
 
     -- 只保留在“青年的工具”栏，从其他栏移除

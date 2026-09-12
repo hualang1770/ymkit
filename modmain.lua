@@ -7,6 +7,9 @@ PrefabFiles = {
     'prefab_ymkit_powerstaff',
     'prefab_ymkit_rich_fertilizer',
     'prefab_ymkit_growth_fallacy',
+    'prefab_ymkit_lucky_horseshoe',
+    'prefab_ymkit_unlucky_horseshoe',
+    'prefab_ymkit_bernie_chest',
 }
 
 local mod_name = 'ymkit'
@@ -39,11 +42,21 @@ config.rich_fertilizer_nutrients = modconfig('rich_fertilizer_nutrients', 25)
 config.rich_fertilizer_uses = modconfig('rich_fertilizer_uses', 10)
 config.rich_fertilizer_recipe_amount = modconfig('rich_fertilizer_recipe_amount', 3)
 config.growth_fallacy = modconfig('enable_growth_fallacy', true)
+config.bernie_chest_preserve = modconfig('bernie_chest_preserve', 'fridge50')
 for _, tool in ipairs(stats.scissors.tools) do
     config[tool.config] = modconfig('enable_' .. tool.config, true)
 end
 
 TUNING.YMKIT_CONFIG = config
+
+-- 大容量容器：容器槽位的 netvar 池大小由 containers.MAXITEMSLOTS 决定，而它在游戏加载
+-- containers.lua 时就按原版参数算完了（当前 20）。必须在任何容器实例创建前抬高，
+-- 否则超出的槽位不会报错、但会静默失效。
+local containers = require 'containers'
+local bernie_slots = stats.bernie_chest.container_cols * stats.bernie_chest.container_rows
+if containers.MAXITEMSLOTS < bernie_slots then
+    containers.MAXITEMSLOTS = bernie_slots
+end
 
 -- Insight 等模组通过该表读取肥料的三种营养数值。
 local fertilizer_defs = require('prefabs/fertilizer_nutrient_defs').FERTILIZER_DEFS
@@ -82,3 +95,4 @@ STRINGS.UI.CRAFTING_FILTERS.YMKIT_TOOLS = '青年的工具'
 modimport('scripts/util/'..mod_name..'_strings.lua')
 modimport('scripts/util/'..mod_name..'_recipes.lua')
 modimport('scripts/util/'..mod_name..'_actions.lua')
+modimport('scripts/util/'..mod_name..'_bernie_chest.lua')

@@ -1,8 +1,8 @@
 
 name = '青年的工具'
-version = '2.4.29'
+version = '2.5.1'
 
-description = version .. '\n青年制作的合集工具：黑曜石战斧（范围收割/隔空工具）、魔法剪刀（真实伤害/拆解/锤子形态）、力量魔杖（传送/沃尔夫冈肌肉保留）、高效肥料与万物生长，持续扩展中'
+description = version .. '\n青年制作的合集工具：黑曜石战斧（范围收割/隔空工具）、魔法剪刀（真实伤害/拆解/锤子形态）、力量魔杖（传送/沃尔夫冈肌肉保留）、高效肥料、万物生长、超幸运马蹄铁与不幸马蹄铁、小熊箱（6×6 大容量储物箱，可当冰箱用），持续扩展中'
 
 author = '青年'
 
@@ -89,7 +89,6 @@ configuration_options = {
         default = 'slow',
     },
     section('ymkit_section_rich_fertilizer', '高效肥料'),
-    toggle('enable_rich_fertilizer', '高效肥料', '开启高效肥料的制作配方'),
     {
         name = 'rich_fertilizer_nutrients',
         label = '每种营养含量',
@@ -128,7 +127,17 @@ configuration_options = {
         },
         default = 3,
     },
-    section('ymkit_section_growth_fallacy', '万物生长'),
-    toggle('enable_growth_fallacy', '万物生长', '开启万物生长的制作配方；已有物品不受此开关影响'),
+    section('ymkit_section_bernie_chest', '小熊箱'),
+    {
+        name = 'bernie_chest_preserve',
+        label = '保鲜方式',
+        hover = '小熊箱内食物的保鲜方式：保鲜率是“降低腐败速度”的百分比，50% 就是原版冰箱；返鲜在前面的基础上再慢慢恢复食物新鲜度',
+        options = {
+            {description = '50%（与原版冰箱相同）', data = 'fridge50'},
+            {description = '75%', data = 'fridge75'},
+            {description = '100%（完全不腐烂）', data = 'fridge100'},
+            {description = '返鲜（缓慢恢复新鲜度）', data = 'restore'},
+        },
+        default = 'fridge50',
+    },
 }
-
