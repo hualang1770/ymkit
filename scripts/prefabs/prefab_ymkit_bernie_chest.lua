@@ -2,10 +2,12 @@
 -- 可以像原版箱子一样储存物品的建筑，容器为 6x6 共 36 格（格子数在 util/ymkit_item_stats.lua 里调）。
 -- 配方与放置方式和原版箱子一致（3 块木板 + 科学一本），制作后在“青年的工具”栏里放置。
 -- 额外能力（数值都在 util/ymkit_item_stats.lua 的 bernie_chest 里调）：
---   无限堆叠  箱内物品不受堆叠上限限制，和“弹性空间制造器”升满后的效果一样
 --   冰箱      挂 fridge 标签，箱内暖石和食物会降温，冰块这类物品不会融化
 --   保鲜/返鲜 按模组配置在 50%（原版冰箱）/75%/100% 保鲜与返鲜之间切换
 --   防火      不加 burnable，点火烧不着；锤 2 下砸掉，返还材料走配方（和原版箱子一样）
+-- 堆叠：默认和原版箱子一样，箱内物品各按自己的堆叠上限（别的模组调高了堆叠也一并生效）；
+--       用“弹性空间制造器”升级一次之后才是无限堆叠，升级入口和原版箱子完全一致。
+-- 机器人：容器 type 是 'chest'，薇机人 / 瓦器人会把周围地上的物品存进箱子里（原版行为）。
 -- 目前动画只有 chest / hit 两个，暂不区分开合状态，后续再打磨。
 
 local containers = require 'containers'
@@ -136,6 +138,38 @@ local function onhit(inst, worker)
     end
 end
 
+-- 堆叠升级：和原版箱子一样，用“弹性空间制造器”升级一次才把容器改成无限堆叠。
+-- 升级前容器完全不干预，物品各按自己的上限（原版或别的模组设的）堆；升级后容器接管，
+-- 之后放进去的东西也不再受上限限制。升级次数由 upgradeable 组件自己存档。
+local function getstatus(inst)
+    return inst._ymkit_stacksize_upgraded and 'UPGRADED_STACKSIZE' or nil
+end
+
+local function on_stacksize_upgrade(inst, performer, upgraded_from_item)
+    if inst.components.upgradeable.numupgrades == 1 then
+        inst._ymkit_stacksize_upgraded = true
+        if inst.components.container ~= nil then
+            inst.components.container:Close()
+            inst.components.container:EnableInfiniteStackSize(true)
+            inst.components.inspectable.getstatus = getstatus
+        end
+        if upgraded_from_item then
+            -- 原版升级时会放一团特效；熊箱没有升级后的动画，这里只放特效
+            local fx = SpawnPrefab('chestupgrade_stacksize_fx')
+            fx.Transform:SetPosition(inst.Transform:GetWorldPosition())
+        end
+    end
+    -- 和原版一样：升过一次就不能再升了
+    inst.components.upgradeable.upgradetype = nil
+end
+
+-- 读档：upgradeable 自己存了升级次数，升过就把无限堆叠和检查文本补回来
+local function onload(inst, data, newents)
+    if inst.components.upgradeable ~= nil and inst.components.upgradeable.numupgrades > 0 then
+        on_stacksize_upgrade(inst)
+    end
+end
+
 -- 返鲜：每 restore_period 秒给箱内每件还有新鲜度的物品补 restore_percent 的新鲜度。
 -- 原版没有返鲜机制，所以用低频定时任务实现（一次只遍历 36 格），不做逐物品的持续循环。
 local function restore_freshness(inst)
@@ -219,8 +253,14 @@ local function fn()
     inst.components.container.onclosefn = onclose
     inst.components.container.skipopensnd = true
     inst.components.container.skipclosesnd = true
-    -- 无限堆叠：和“弹性空间制造器”升满后的效果一样，之后放进去的物品由容器自己接管
-    inst.components.container:EnableInfiniteStackSize(true)
+    -- 堆叠：默认不干预，箱内物品各按自己的堆叠上限（原版或别的模组设的都生效）；
+    -- 用“弹性空间制造器”升级成无限堆叠，见上面的 on_stacksize_upgrade
+    local upgradeable = inst:AddComponent('upgradeable')
+    upgradeable.upgradetype = UPGRADETYPES.CHEST
+    upgradeable:SetOnUpgradeFn(on_stacksize_upgrade)
+
+    -- 读档时把升级过的无限堆叠补回来
+    inst.OnLoad = onload
 
     -- 锤子的掉落由 lootdropper 按配方自动返还（3 块木板 × HAMMER_LOOT_PERCENT），和原版箱子一样
     inst:AddComponent('lootdropper')
@@ -239,5 +279,5 @@ local function fn()
     return inst
 end
 
-return Prefab(data.prefab_id, fn, assets),
+return Prefab(data.prefab_id, fn, assets, { 'chestupgrade_stacksize_fx' }),
     MakePlacer(data.placer_id, data.bank, data.bank, data.anim_idle)

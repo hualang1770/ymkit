@@ -298,7 +298,8 @@ local stats = {
         prefab_id = 'ymkit_bernie_chest',
         name = '小熊箱',
         describe = '小熊的肚子里能装下不少东西。',
-        recipe_desc = '三块木板钉一只小熊',
+        describe_upgraded = '肚子里好像更宽敞了。',  -- 用“弹性空间制造器”升级成无限堆叠后的检查文本
+        recipe_desc = '好朋友',
         bank = 'bernie_chest',              -- 动画 bank 与 build 同名
         placer_id = 'ymkit_bernie_chest_placer',
         -- 容器：6x6 共 36 格。槽位和底板都用官方 UI 资源，底板取官方箱子 ui_chest_3x3 放大到能盖住 6x6。
@@ -344,7 +345,10 @@ local stats = {
         recipe_image = 'ymkit_bernie_chest.tex',
         min_spacing = 1,                    -- 与原版箱子一致的放置间距
         recipes = {
-            {'boards', 3},
+            {'boards', 6}, -- 木板
+            {'rope' ,4}, -- 绳子
+            {'manrabbit_tail', 2}, -- 兔绒
+            {'sewing_kit', 1}, -- 针线包
         },
     },
 

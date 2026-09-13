@@ -9,7 +9,16 @@ for _, key in ipairs(stats.list) do
     -- 原版已有名称的物品（keep_vanilla_name）只注册配方描述，避免覆盖其他语言的原版名称。
     if item.keep_vanilla_name ~= true then
         STRINGS.NAMES[upper] = item.name
-        STRINGS.CHARACTERS.GENERIC.DESCRIBE[upper] = item.describe
+        -- describe_upgraded 有的话按原版箱子的写法存成表（GENERIC + UPGRADED_STACKSIZE），
+        -- 检查升级过的熊箱就会显示那一句；没有的物品还是原来的纯文本。
+        if item.describe_upgraded ~= nil then
+            STRINGS.CHARACTERS.GENERIC.DESCRIBE[upper] = {
+                GENERIC = item.describe,
+                UPGRADED_STACKSIZE = item.describe_upgraded,
+            }
+        else
+            STRINGS.CHARACTERS.GENERIC.DESCRIBE[upper] = item.describe
+        end
     end
     STRINGS.RECIPE_DESC[upper] = item.recipe_desc
 end
